@@ -4,14 +4,23 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Domain\Service\GreeterService;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 
-class WorldController
+class WorldController extends AbstractController
 {
+
+    public function __construct(private readonly GreeterService $greeterService)
+    {
+    }
 
     public function hello(): Response
     {
-        return new Response('<html lang="en"><body><h1><b>Hello,</b> <i>world</i>!</h1></body></html>');
+        return new Response(
+            sprintf("<html lang=\"RU\"><body>%s</body></html>",
+                $this->greeterService->greet('world'))
+        );
     }
 
 }
