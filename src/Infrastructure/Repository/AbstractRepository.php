@@ -6,6 +6,7 @@ namespace App\Infrastructure\Repository;
 
 use App\Domain\Entity\EntityInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Exception\ORMException;
 
 /**
  * @template T
@@ -22,7 +23,8 @@ abstract class AbstractRepository
     }
 
     /**
-     * @param T $entity
+     * @param EntityInterface $entity
+     * @return int
      */
     protected function store(EntityInterface $entity): int
     {
@@ -30,5 +32,14 @@ abstract class AbstractRepository
         $this->flush();
 
         return $entity->getId();
+    }
+
+    /**
+     * @param EntityInterface $entity
+     * @throws ORMException
+     */
+    public function refresh(EntityInterface $entity): void
+    {
+        $this->entityManager->refresh($entity);
     }
 }
