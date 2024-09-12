@@ -9,8 +9,9 @@ use App\Domain\Entity\User;
 class UserBuilderService
 {
     public function __construct(
-        private readonly TweetService $tweetService,
-        private readonly UserService  $userService,
+        private readonly TweetService        $tweetService,
+        private readonly UserService         $userService,
+        private readonly SubscriptionService $subscriptionService,
     )
     {
     }
@@ -36,6 +37,7 @@ class UserBuilderService
         $user = $this->userService->create($login);
         $follower = $this->userService->create($followerLogin);
         $this->userService->subscribeUser($user, $follower);
+        $this->subscriptionService->addSubscription($user, $follower);
 
         return [$user, $follower];
     }
