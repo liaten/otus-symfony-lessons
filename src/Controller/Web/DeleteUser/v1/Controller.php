@@ -18,7 +18,7 @@ class Controller
     #[Route(path: 'api/v1/user', methods: ['DELETE'])]
     public function __invoke(Request $request): Response
     {
-        $userId = $request->query->get('id');
+        $userId = (int)$request->query->get('id');
         $result = $this->manager->deleteUserById($userId);
         if ($result) {
             return new JsonResponse(['success' => true]);
