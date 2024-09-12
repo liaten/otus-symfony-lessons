@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace App\Domain\Service;
@@ -15,9 +14,6 @@ class GreeterService
 
     public function greet(string $name): string
     {
-        return sprintf('%s, %s!',
-            $this->greet,
-            $name
-        );
+        return $this->greet.', '.$name.'!';
     }
 }

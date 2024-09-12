@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace App\Domain\Service;
@@ -11,14 +10,13 @@ class FormatServiceFactory
         return (new FormatService())->setTag('strong');
     }
 
-    public static function citeFormatService(): FormatService
+    public function citeFormatService(): FormatService
     {
         return (new FormatService())->setTag('cite');
     }
 
-    public static function headerFormatService(int $level): FormatService
+    public function headerFormatService(int $level): FormatService
     {
-        return (new FormatService())->setTag(sprintf('h%s', $level));
+        return (new FormatService())->setTag("h$level");
     }
-
 }

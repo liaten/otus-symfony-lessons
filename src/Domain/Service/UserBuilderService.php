@@ -1,19 +1,17 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Domain\Service;
 
 use App\Domain\Entity\User;
+use App\Infrastructure\Repository\UserRepository;
 
 class UserBuilderService
 {
     public function __construct(
-        private readonly TweetService        $tweetService,
-        private readonly UserService         $userService,
-        private readonly SubscriptionService $subscriptionService,
-    )
-    {
+        private readonly TweetService $tweetService,
+        private readonly UserService $userService,
+        private readonly SubscriptionService $subscriptionService
+    ) {
     }
 
     /**

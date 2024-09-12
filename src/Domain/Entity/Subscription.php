@@ -8,6 +8,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'subscription')]
 #[ORM\Entity]
+#[ORM\Index(name: 'subscription__author_id__ind', columns: ['author_id'])]
+#[ORM\Index(name: 'subscription__follower_id__ind', columns: ['follower_id'])]
 class Subscription implements EntityInterface
 {
     #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
@@ -59,23 +61,19 @@ class Subscription implements EntityInterface
         $this->follower = $follower;
     }
 
-    public function getCreatedAt(): DateTime
-    {
+    public function getCreatedAt(): DateTime {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(): void
-    {
+    public function setCreatedAt(): void {
         $this->createdAt = new DateTime();
     }
 
-    public function getUpdatedAt(): DateTime
-    {
+    public function getUpdatedAt(): DateTime {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(): void
-    {
+    public function setUpdatedAt(): void {
         $this->updatedAt = new DateTime();
     }
 }

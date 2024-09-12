@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace App\Infrastructure\Repository;
@@ -22,6 +21,9 @@ abstract class AbstractRepository
         $this->entityManager->flush();
     }
 
+    /**
+     * @param T $entity
+     */
     protected function store(EntityInterface $entity): int
     {
         $this->entityManager->persist($entity);
@@ -31,7 +33,7 @@ abstract class AbstractRepository
     }
 
     /**
-     * @param EntityInterface $entity
+     * @param T $entity
      * @throws ORMException
      */
     public function refresh(EntityInterface $entity): void

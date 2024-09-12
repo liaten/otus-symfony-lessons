@@ -1,9 +1,9 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Domain\Entity;
 
+use App\Domain\ValueObject\CommunicationChannelEnum;
+use DateInterval;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -11,7 +11,17 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: '`user`')]
 #[ORM\Entity]
-class User implements EntityInterface
+#[ORM\HasLifecycleCallbacks]
+#[ORM\InheritanceType('SINGLE_TABLE')]
+#[ORM\DiscriminatorColumn(name: 'communication_channel', type: 'string', enumType: CommunicationChannelEnum::class)]
+#[ORM\DiscriminatorMap(
+    [
+        CommunicationChannelEnum::Email->value => EmailUser::class,
+        CommunicationChannelEnum::Phone->value => PhoneUser::class,
+    ]
+)]
+#[ORM\UniqueConstraint(name: 'user__login__uniq', columns: ['login'], options: ['where' => '(deleted_at IS NULL)'])]
+class User implements EntityInterface, HasMetaTimestampsInterface, SoftDeletableInterface, SoftDeletableInFutureInterface
 {
     #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
     #[ORM\Id]
@@ -45,6 +55,9 @@ class User implements EntityInterface
     #[ORM\OneToMany(targetEntity: 'Subscription', mappedBy: 'author')]
     private Collection $subscriptionFollowers;
 
+    #[ORM\Column(name: 'deleted_at', type: 'datetime', nullable: true)]
+    private ?DateTime $deletedAt = null;
+
     public function __construct()
     {
         $this->tweets = new ArrayCollection();
@@ -54,7 +67,7 @@ class User implements EntityInterface
         $this->subscriptionFollowers = new ArrayCollection();
     }
 
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }
@@ -74,59 +87,41 @@ class User implements EntityInterface
         $this->login = $login;
     }
 
-    public function getCreatedAt(): DateTime
-    {
+    public function getCreatedAt(): DateTime {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(): void
-    {
+    #[ORM\PrePersist]
+    public function setCreatedAt(): void {
         $this->createdAt = new DateTime();
     }
 
-    public function getUpdatedAt(): DateTime
-    {
+    public function getUpdatedAt(): DateTime {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(): void
-    {
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function setUpdatedAt(): void {
         $this->updatedAt = new DateTime();
     }
 
-    public function toArray(): array
+    public function getDeletedAt(): ?DateTime
     {
-        return [
-            'id' => $this->id,
-            'login' => $this->login,
-            'createdAt' => $this->createdAt->format('Y-m-d H:i:s'),
-            'updatedAt' => $this->updatedAt->format('Y-m-d H:i:s'),
-            'tweets' => array_map(static fn(Tweet $tweet) => $tweet->toArray(), $this->tweets->toArray()),
-            'followers' => array_map(
-                static fn(User $user) => ['id' => $user->getId(), 'login' => $user->getLogin()],
-                $this->followers->toArray()
-            ),
-            'authors' => array_map(
-                static fn(User $user) => ['id' => $user->getId(), 'login' => $user->getLogin()],
-                $this->authors->toArray()
-            ),
-            'subscriptionFollowers' => array_map(
-                static fn(Subscription $subscription) => [
-                    'subscriptionId' => $subscription->getId(),
-                    'userId' => $subscription->getFollower()->getId(),
-                    'login' => $subscription->getFollower()->getLogin(),
-                ],
-                $this->subscriptionFollowers->toArray()
-            ),
-            'subscriptionAuthors' => array_map(
-                static fn(Subscription $subscription) => [
-                    'subscriptionId' => $subscription->getId(),
-                    'userId' => $subscription->getAuthor()->getId(),
-                    'login' => $subscription->getAuthor()->getLogin(),
-                ],
-                $this->subscriptionAuthors->toArray()
-            ),
-        ];
+        return $this->deletedAt;
+    }
+
+    public function setDeletedAt(): void
+    {
+        $this->deletedAt = new DateTime();
+    }
+
+    public function setDeletedAtInFuture(DateInterval $dateInterval): void
+    {
+        if ($this->deletedAt === null) {
+            $this->deletedAt = new DateTime();
+        }
+        $this->deletedAt = $this->deletedAt->add($dateInterval);
     }
 
     public function addTweet(Tweet $tweet): void
@@ -162,5 +157,40 @@ class User implements EntityInterface
         if (!$this->subscriptionFollowers->contains($subscription)) {
             $this->subscriptionFollowers->add($subscription);
         }
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'login' => $this->login,
+            'createdAt' => $this->createdAt->format('Y-m-d H:i:s'),
+            'updatedAt' => $this->updatedAt->format('Y-m-d H:i:s'),
+            'tweets' => array_map(static fn(Tweet $tweet) => $tweet->toArray(), $this->tweets->toArray()),
+            'followers' => array_map(
+                static fn(User $user) => ['id' => $user->getId(), 'login' => $user->getLogin()],
+                $this->followers->toArray()
+            ),
+            'authors' => array_map(
+                static fn(User $user) => ['id' => $user->getId(), 'login' => $user->getLogin()],
+                $this->authors->toArray()
+            ),
+            'subscriptionFollowers' => array_map(
+                static fn(Subscription $subscription) => [
+                    'subscriptionId' => $subscription->getId(),
+                    'userId' => $subscription->getFollower()->getId(),
+                    'login' => $subscription->getFollower()->getLogin(),
+                ],
+                $this->subscriptionFollowers->toArray()
+            ),
+            'subscriptionAuthors' => array_map(
+                static fn(Subscription $subscription) => [
+                    'subscriptionId' => $subscription->getId(),
+                    'userId' => $subscription->getAuthor()->getId(),
+                    'login' => $subscription->getAuthor()->getLogin(),
+                ],
+                $this->subscriptionAuthors->toArray()
+            ),
+        ];
     }
 }
