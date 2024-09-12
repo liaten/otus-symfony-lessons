@@ -14,12 +14,14 @@ class Manager
 
     public function create(string $login, ?string $phone = null, ?string $email = null): ?User
     {
-        if ($phone !== null) {
-            return $this->userService->createWithPhone($login, $phone);
-        }
+        if ($phone !== null xor $email !== null) {
+            if ($phone !== null) {
+                return $this->userService->createWithPhone($login, $phone);
+            }
 
-        if ($email !== null) {
-            return $this->userService->createWithEmail($login, $email);
+            if ($email !== null) {
+                return $this->userService->createWithEmail($login, $email);
+            }
         }
 
         return null;
