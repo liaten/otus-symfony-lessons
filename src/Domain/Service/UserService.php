@@ -33,4 +33,20 @@ class UserService
     {
         $this->userRepository->subscribeUser($author, $follower);
     }
+
+    /**
+     * @return User[]
+     */
+    public function findUsersByLogin(string $login): array
+    {
+        return $this->userRepository->findUsersByLogin($login);
+    }
+
+    /**
+     * @return User[]
+     */
+    public function findUsersByLoginWithCriteria(string $login): array
+    {
+        return $this->userRepository->findUsersByLoginWithCriteria($login);
+    }
 }
