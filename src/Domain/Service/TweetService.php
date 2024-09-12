@@ -21,6 +21,7 @@ class TweetService
         $tweet->setText($text);
         $tweet->setCreatedAt();
         $tweet->setUpdatedAt();
+        $author->addTweet($tweet);
         $this->tweetRepository->create($tweet);
     }
 }

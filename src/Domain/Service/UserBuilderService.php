@@ -24,8 +24,19 @@ class UserBuilderService
         foreach ($texts as $text) {
             $this->tweetService->postTweet($user, $text);
         }
-        $this->userService->refresh($user);
 
         return $user;
+    }
+
+    /**
+     * @return User[]
+     */
+    public function createUserWithFollower(string $login, string $followerLogin): array
+    {
+        $user = $this->userService->create($login);
+        $follower = $this->userService->create($followerLogin);
+        $this->userService->subscribeUser($user, $follower);
+
+        return [$user, $follower];
     }
 }
