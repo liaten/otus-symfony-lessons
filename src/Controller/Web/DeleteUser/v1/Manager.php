@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Web\DeleteUser\v1;
 
+use App\Domain\Entity\User;
 use App\Domain\Service\UserService;
 
 class Manager
@@ -14,5 +15,10 @@ class Manager
     public function deleteUserById(int $userId): bool
     {
         return $this->userService->removeById($userId);
+    }
+
+    public function deleteUser(User $user): void
+    {
+        $this->userService->remove($user);
     }
 }
