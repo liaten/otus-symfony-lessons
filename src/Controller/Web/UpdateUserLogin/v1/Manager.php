@@ -12,10 +12,8 @@ class Manager
     {
     }
 
-    public function updateUserLogin(int $userId, string $login): bool
+    public function updateLogin(User $user, string $login): void
     {
-        $user = $this->userService->updateUserLogin($userId, $login);
-
-        return $user instanceof User;
+        $this->userService->updateLogin($user, $login);
     }
 }
