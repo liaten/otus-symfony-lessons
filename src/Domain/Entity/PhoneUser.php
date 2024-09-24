@@ -17,9 +17,11 @@ class PhoneUser extends User
         return $this->phone;
     }
 
-    public function setPhone(string $phone): void
+    public function setPhone(string $phone): self
     {
         $this->phone = $phone;
+
+        return $this;
     }
 
     public function toArray(): array
