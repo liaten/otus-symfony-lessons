@@ -1,10 +1,12 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Infrastructure\Repository;
 
 use App\Domain\Entity\User;
 use DateInterval;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\DBAL\Exception;
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\NonUniqueResultException;
 
@@ -85,7 +87,7 @@ class UserRepository extends AbstractRepository
     }
 
     /**
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      */
     public function updateUserLoginWithDBALQueryBuilder(int $userId, string $login): void
     {
@@ -115,7 +117,7 @@ class UserRepository extends AbstractRepository
     }
 
     /**
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      */
     public function findUserWithTweetsWithDBALQueryBuilder(int $userId): array
     {
