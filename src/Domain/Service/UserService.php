@@ -176,6 +176,9 @@ class UserService
             CommunicationChannelEnum::Phone => (new PhoneUser())->setPhone($createUserModel->communicationMethod),
         };
         $user->setLogin($createUserModel->login);
+        $user->setPassword($createUserModel->password);
+        $user->setAge($createUserModel->age);
+        $user->setIsActive($createUserModel->isActive);
         $this->userRepository->create($user);
 
         return $user;

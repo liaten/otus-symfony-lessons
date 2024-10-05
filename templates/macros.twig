@@ -1,0 +1,10 @@
+{% macro user_table_body(users) %}
+    {% for user in users %}
+        <tr>
+            <td style="text-align: center">{{ user.id|my_twice }}</td>
+            <td style="text-align: center">{{ user.login }}</td>
+            <td style="text-align: center">{{ user.communicationChannel }}</td>
+            <td style="text-align: center">({{ user.communicationMethod }})</td>
+        </tr>
+    {% endfor %}
+{% endmacro %}
