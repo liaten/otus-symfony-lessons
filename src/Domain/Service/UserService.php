@@ -183,4 +183,9 @@ class UserService
 
         return $user;
     }
+
+    public function processFromForm(User $user): void
+    {
+        $this->userRepository->create($user);
+    }
 }
