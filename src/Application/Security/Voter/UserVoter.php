@@ -1,0 +1,29 @@
+<?php
+declare(strict_types=1);
+
+namespace App\Application\Security\Voter;
+
+use App\Domain\Entity\User;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Voter;
+
+class UserVoter extends Voter
+{
+    public const DELETE = 'delete';
+
+    protected function supports(string $attribute, $subject): bool
+    {
+        return $attribute === self::DELETE && ($subject instanceof User);
+    }
+
+    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    {
+        $user = $token->getUser();
+        if (!$user instanceof User) {
+            return false;
+        }
+
+        /** @var User $subject */
+        return $user->getId() !== $subject->getId();
+    }
+}

@@ -1,4 +1,16 @@
 security:
+
+    role_hierarchy:
+        ROLE_ADMIN:
+            - ROLE_VIEW
+            - ROLE_GET_LIST
+
+
+    access_decision_manager:
+        strategy: consensus
+
+
+
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
@@ -15,6 +27,11 @@ security:
         main:
             lazy: true
             provider: app_user_provider
+            form_login:
+                login_path: app_login
+                check_path: app_login
+                enable_csrf: true
+                default_target_path: app_web_renderuserlist_v1__invoke
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -25,8 +42,8 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/api/v1/user, roles: ROLE_ADMIN, methods: [DELETE] }
+        - { path: ^/api/v1/get-user-list, roles: ROLE_VIEW, methods: [GET] }
 
 when@test:
     security:
