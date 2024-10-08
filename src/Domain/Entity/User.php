@@ -4,11 +4,14 @@ declare(strict_types=1);
 namespace App\Domain\Entity;
 
 use App\Domain\ValueObject\CommunicationChannelEnum;
+use App\Domain\ValueObject\RoleEnum;
 use DateInterval;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Table(name: '`user`')]
 #[ORM\Entity]
@@ -22,7 +25,14 @@ use Doctrine\ORM\Mapping as ORM;
     ]
 )]
 #[ORM\UniqueConstraint(name: 'user__login__uniq', columns: ['login'], options: ['where' => '(deleted_at IS NULL)'])]
-class User implements EntityInterface, HasMetaTimestampsInterface, SoftDeletableInterface, SoftDeletableInFutureInterface
+class User
+    implements
+    EntityInterface,
+    HasMetaTimestampsInterface,
+    SoftDeletableInterface,
+    SoftDeletableInFutureInterface,
+    UserInterface,
+    PasswordAuthenticatedUserInterface
 {
     #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
     #[ORM\Id]
@@ -70,6 +80,10 @@ class User implements EntityInterface, HasMetaTimestampsInterface, SoftDeletable
 
     #[ORM\Column(type: 'boolean', nullable: false)]
     private bool $isActive;
+
+    #[ORM\Column(type: 'json', length: 1024, nullable: false)]
+    private array $roles = [];
+
 
     public function __construct()
     {
@@ -250,5 +264,34 @@ class User implements EntityInterface, HasMetaTimestampsInterface, SoftDeletable
     public function setIsActive(bool $isActive): void
     {
         $this->isActive = $isActive;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = RoleEnum::ROLE_USER->value;
+
+        return array_unique($roles);
+    }
+
+    /**
+     * @param string[] $roles
+     */
+    public function setRoles(array $roles): void
+    {
+        $this->roles = $roles;
+    }
+
+    public function eraseCredentials(): void
+    {
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return $this->login;
     }
 }

@@ -10,11 +10,14 @@ use App\Domain\Model\CreateUserModel;
 use App\Domain\ValueObject\CommunicationChannelEnum;
 use App\Infrastructure\Repository\UserRepository;
 use DateInterval;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserService
 {
-    public function __construct(private readonly UserRepository $userRepository)
-    {
+    public function __construct(
+        private readonly UserRepository $userRepository,
+        private readonly UserPasswordHasherInterface $userPasswordHasher,
+    ) {
     }
 
     public function createWithPhone(string $login, string $phone): User
@@ -47,72 +50,6 @@ class UserService
         $this->userRepository->subscribeUser($author, $follower);
     }
 
-    /**
-     * @return User[]
-     */
-    public function findUsersByLogin(string $login): array
-    {
-        return $this->userRepository->findUsersByLogin($login);
-    }
-
-    /**
-     * @return User[]
-     */
-    public function findUsersByLoginWithCriteria(string $login): array
-    {
-        return $this->userRepository->findUsersByLoginWithCriteria($login);
-    }
-
-    public function updateUserLogin(int $userId, string $login): ?User
-    {
-        $user = $this->userRepository->find($userId);
-        if (!($user instanceof User)) {
-            return null;
-        }
-        $this->userRepository->updateLogin($user, $login);
-
-        return $user;
-    }
-
-    public function findUsersByLoginWithQueryBuilder(string $login): array
-    {
-        return $this->userRepository->findUsersByLoginWithQueryBuilder($login);
-    }
-
-    public function updateUserLoginWithQueryBuilder(int $userId, string $login): ?User
-    {
-        $user = $this->userRepository->find($userId);
-        if (!($user instanceof User)) {
-            return null;
-        }
-        $this->userRepository->updateUserLoginWithQueryBuilder($user->getId(), $login);
-        $this->userRepository->refresh($user);
-
-        return $user;
-    }
-
-    public function updateUserLoginWithDBALQueryBuilder(int $userId, string $login): ?User
-    {
-        $user = $this->userRepository->find($userId);
-        if (!($user instanceof User)) {
-            return null;
-        }
-        $this->userRepository->updateUserLoginWithDBALQueryBuilder($user->getId(), $login);
-        $this->userRepository->refresh($user);
-
-        return $user;
-    }
-
-    public function findUserWithTweetsWithQueryBuilder(int $userId): array
-    {
-        return $this->userRepository->findUserWithTweetsWithQueryBuilder($userId);
-    }
-
-    public function findUserWithTweetsWithDBALQueryBuilder(int $userId): array
-    {
-        return $this->userRepository->findUserWithTweetsWithDBALQueryBuilder($userId);
-    }
-
     public function removeById(int $userId): bool
     {
         $user = $this->userRepository->find($userId);
@@ -123,22 +60,6 @@ class UserService
         }
 
         return false;
-    }
-
-    public function removeByIdInFuture(int $userId, DateInterval $dateInterval): void
-    {
-        $user = $this->userRepository->find($userId);
-        if ($user instanceof User) {
-            $this->userRepository->removeInFuture($user, $dateInterval);
-        }
-    }
-
-    /**
-     * @return User[]
-     */
-    public function findUsersByLoginWithDeleted(string $login): array
-    {
-        return $this->userRepository->findUsersByLoginWithDeleted($login);
     }
 
     public function findUserById(int $id): ?User
@@ -176,9 +97,10 @@ class UserService
             CommunicationChannelEnum::Phone => (new PhoneUser())->setPhone($createUserModel->communicationMethod),
         };
         $user->setLogin($createUserModel->login);
-        $user->setPassword($createUserModel->password);
+        $user->setPassword($this->userPasswordHasher->hashPassword($user, $createUserModel->password));
         $user->setAge($createUserModel->age);
         $user->setIsActive($createUserModel->isActive);
+        $user->setRoles($createUserModel->roles);
         $this->userRepository->create($user);
 
         return $user;
