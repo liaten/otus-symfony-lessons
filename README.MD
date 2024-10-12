@@ -1,1 +1,1 @@
-# LESSON 11: Authorization and Authentication
+# LESSON 12: Stateless API
