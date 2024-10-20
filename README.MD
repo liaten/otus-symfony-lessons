@@ -1,1 +1,1 @@
-# LESSON 12: Stateless API
+# LESSON 13: REST-apps and API Platform
