@@ -4,12 +4,14 @@ declare(strict_types=1);
 namespace App\Domain\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GraphQl\Query;
+use ApiPlatform\Metadata\GraphQl\QueryCollection;
 use ApiPlatform\Metadata\Post;
 use App\Controller\Web\CreateUser\v2\Input\CreateUserDTO;
 use App\Controller\Web\CreateUser\v2\Output\CreatedUserDTO;
+use App\Domain\ApiPlatform\GraphQL\Resolver\UserCollectionResolver;
+use App\Domain\ApiPlatform\GraphQL\Resolver\UserResolver;
 use App\Domain\ApiPlatform\State\UserProcessor;
-use App\Domain\ApiPlatform\State\UserProviderDecorator;
 use App\Domain\ValueObject\CommunicationChannelEnum;
 use App\Domain\ValueObject\RoleEnum;
 use DateInterval;
@@ -32,9 +34,19 @@ use Symfony\Component\Security\Core\User\UserInterface;
     ]
 )]
 #[ORM\UniqueConstraint(name: 'user__login__uniq', columns: ['login'], options: ['where' => '(deleted_at IS NULL)'])]
-#[ApiResource]
+#[ApiResource(
+    graphQlOperations: [
+        new Query(),
+        new QueryCollection(),
+        new QueryCollection(resolver: UserCollectionResolver::class, name: 'protected'),
+        new Query(
+            resolver: UserResolver::class,
+            args: ['_id' => ['type' => 'Int'], 'login' => ['type' => 'String']],
+            name: 'protected'
+        ),
+    ]
+)]
 #[Post(input: CreateUserDTO::class, output: CreatedUserDTO::class, processor: UserProcessor::class)]
-#[Get(output: CreatedUserDTO::class, provider: UserProviderDecorator::class)]
 class User
     implements
     EntityInterface,
@@ -96,6 +108,9 @@ class User
 
     #[ORM\Column(type: 'string', length: 32, unique: true, nullable: true)]
     private ?string $token = null;
+
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    private ?bool $isProtected;
 
 
     public function __construct()
@@ -183,62 +198,6 @@ class User
         }
     }
 
-    public function toArray(): array
-    {
-        return [
-            'id' => $this->id,
-            'login' => $this->login,
-            'avatar' => $this->avatarLink,
-            'createdAt' => $this->createdAt->format('Y-m-d H:i:s'),
-            'updatedAt' => $this->updatedAt->format('Y-m-d H:i:s'),
-            'tweets' => array_map(static fn(Tweet $tweet) => $tweet->toArray(), $this->tweets->toArray()),
-            'followers' => array_map(
-                static fn(User $user) => ['id' => $user->getId(), 'login' => $user->getLogin()],
-                $this->followers->toArray()
-            ),
-            'authors' => array_map(
-                static fn(User $user) => ['id' => $user->getId(), 'login' => $user->getLogin()],
-                $this->authors->toArray()
-            ),
-            'subscriptionFollowers' => array_map(
-                static fn(Subscription $subscription) => [
-                    'subscriptionId' => $subscription->getId(),
-                    'userId' => $subscription->getFollower()->getId(),
-                    'login' => $subscription->getFollower()->getLogin(),
-                ],
-                $this->subscriptionFollowers->toArray()
-            ),
-            'subscriptionAuthors' => array_map(
-                static fn(Subscription $subscription) => [
-                    'subscriptionId' => $subscription->getId(),
-                    'userId' => $subscription->getAuthor()->getId(),
-                    'login' => $subscription->getAuthor()->getLogin(),
-                ],
-                $this->subscriptionAuthors->toArray()
-            ),
-        ];
-    }
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
-
-    public function getLogin(): string
-    {
-        return $this->login;
-    }
-
-    public function setLogin(string $login): void
-    {
-        $this->login = $login;
-    }
-
     public function getAvatarLink(): ?string
     {
         return $this->avatarLink;
@@ -316,5 +275,79 @@ class User
     public function setToken(?string $token): void
     {
         $this->token = $token;
+    }
+
+    /**
+     * @return Subscription[]
+     */
+    public function getSubscriptionFollowers(): array
+    {
+        return $this->subscriptionFollowers->toArray();
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'login' => $this->login,
+            'avatar' => $this->avatarLink,
+            'createdAt' => $this->createdAt->format('Y-m-d H:i:s'),
+            'updatedAt' => $this->updatedAt->format('Y-m-d H:i:s'),
+            'tweets' => array_map(static fn(Tweet $tweet) => $tweet->toArray(), $this->tweets->toArray()),
+            'followers' => array_map(
+                static fn(User $user) => ['id' => $user->getId(), 'login' => $user->getLogin()],
+                $this->followers->toArray()
+            ),
+            'authors' => array_map(
+                static fn(User $user) => ['id' => $user->getId(), 'login' => $user->getLogin()],
+                $this->authors->toArray()
+            ),
+            'subscriptionFollowers' => array_map(
+                static fn(Subscription $subscription) => [
+                    'subscriptionId' => $subscription->getId(),
+                    'userId' => $subscription->getFollower()->getId(),
+                    'login' => $subscription->getFollower()->getLogin(),
+                ],
+                $this->subscriptionFollowers->toArray()
+            ),
+            'subscriptionAuthors' => array_map(
+                static fn(Subscription $subscription) => [
+                    'subscriptionId' => $subscription->getId(),
+                    'userId' => $subscription->getAuthor()->getId(),
+                    'login' => $subscription->getAuthor()->getLogin(),
+                ],
+                $this->subscriptionAuthors->toArray()
+            ),
+        ];
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function setId(int $id): void
+    {
+        $this->id = $id;
+    }
+
+    public function getLogin(): string
+    {
+        return $this->login;
+    }
+
+    public function setLogin(string $login): void
+    {
+        $this->login = $login;
+    }
+
+    public function getIsProtected(): bool
+    {
+        return $this->isProtected ?? false;
+    }
+
+    public function setIsProtected(bool $isProtected): void
+    {
+        $this->isProtected = $isProtected;
     }
 }

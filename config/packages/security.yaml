@@ -23,6 +23,7 @@ security:
       pattern: ^/api-platform$
       security: false
     main:
+      security: false
       lazy: true
       stateless: true
       custom_authenticator: App\Application\Security\JwtAuthenticator

@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace App\Domain\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiResource;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -10,6 +13,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 #[ORM\Index(name: 'subscription__author_id__ind', columns: ['author_id'])]
 #[ORM\Index(name: 'subscription__follower_id__ind', columns: ['follower_id'])]
+#[ApiResource]
+#[ApiFilter(SearchFilter::class, properties: ['follower.login' => 'partial'])]
 class Subscription implements EntityInterface
 {
     #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
