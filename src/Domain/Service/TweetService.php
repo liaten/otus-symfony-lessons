@@ -3,13 +3,15 @@ declare(strict_types=1);
 
 namespace App\Domain\Service;
 
+
 use App\Domain\Entity\Tweet;
 use App\Domain\Entity\User;
-use App\Infrastructure\Repository\TweetRepository;
+use App\Domain\Model\TweetModel;
+use App\Domain\Repository\TweetRepositoryInterface;
 
 class TweetService
 {
-    public function __construct(private readonly TweetRepository $tweetRepository)
+    public function __construct(private readonly TweetRepositoryInterface $tweetRepository)
     {
     }
 
@@ -18,9 +20,15 @@ class TweetService
         $tweet = new Tweet();
         $tweet->setAuthor($author);
         $tweet->setText($text);
-        $tweet->setCreatedAt();
-        $tweet->setUpdatedAt();
         $author->addTweet($tweet);
         $this->tweetRepository->create($tweet);
+    }
+
+    /**
+     * @return TweetModel[]
+     */
+    public function getTweetsPaginated(int $page, int $perPage): array
+    {
+        return $this->tweetRepository->getTweetsPaginated($page, $perPage);
     }
 }

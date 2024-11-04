@@ -23,6 +23,7 @@ class Controller
         if ($userId === null) {
             return new JsonResponse(array_map(static fn (User $user): array => $user->toArray(), $this->manager->getAllUsers()));
         }
+        $userId = (int)$userId;
         $user = $this->manager->getUserById($userId);
         if ($user instanceof User) {
             return new JsonResponse($user->toArray());

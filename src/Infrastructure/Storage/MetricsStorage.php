@@ -11,6 +11,8 @@ class MetricsStorage
     public const USER_CREATED = 'user_created';
 
     private const DEFAULT_SAMPLE_RATE = 1.0;
+    public const CACHE_HIT_PREFIX = 'cache.hit.';
+    public const CACHE_MISS_PREFIX = 'cache.miss.';
 
     private Client $client;
 
