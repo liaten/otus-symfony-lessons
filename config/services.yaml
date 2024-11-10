@@ -131,3 +131,8 @@ services:
       - '@redis_client'
       - 'my_app'
       - 0
+
+  App\Infrastructure\Bus\RabbitMqBus:
+    calls:
+      - [ 'registerProducer', [ !php/enum App\Infrastructure\Bus\AmqpExchangeEnum::AddFollowers, '@old_sound_rabbit_mq.add_followers_producer' ] ]
+

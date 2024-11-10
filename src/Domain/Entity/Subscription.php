@@ -15,6 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Index(name: 'subscription__follower_id__ind', columns: ['follower_id'])]
 #[ApiResource]
 #[ApiFilter(SearchFilter::class, properties: ['follower.login' => 'partial'])]
+#[ORM\HasLifecycleCallbacks]
 class Subscription implements EntityInterface
 {
     #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
@@ -66,19 +67,23 @@ class Subscription implements EntityInterface
         $this->follower = $follower;
     }
 
-    public function getCreatedAt(): DateTime {
-        return $this->createdAt;
-    }
-
+    #[ORM\PrePersist]
     public function setCreatedAt(): void {
         $this->createdAt = new DateTime();
+    }
+
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function setUpdatedAt(): void {
+        $this->updatedAt = new DateTime();
     }
 
     public function getUpdatedAt(): DateTime {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(): void {
-        $this->updatedAt = new DateTime();
+    public function getCreatedAt(): DateTime
+    {
+        return $this->createdAt;
     }
 }
