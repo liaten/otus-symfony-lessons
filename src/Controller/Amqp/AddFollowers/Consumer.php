@@ -23,9 +23,6 @@ class Consumer extends AbstractConsumer
         return Message::class;
     }
 
-    /**
-     * @param Message $message
-     */
     protected function handle($message): int
     {
         $user = $this->userService->findUserById($message->userId);
@@ -33,9 +30,12 @@ class Consumer extends AbstractConsumer
             return $this->reject(sprintf('User ID %s was not found', $message->userId));
         }
 
-        $this->followerService->addFollowersSync($user, $message->followerLogin, $message->count);
+        if ($message->followerLogin === 'multi_follower_error_11') {
+            die();
+        }
 
-        throw new \RuntimeException('Something happens');
+        $this->followerService->addFollowersSync($user, $message->followerLogin, $message->count);
+        sleep(1);
 
         return self::MSG_ACK;
     }
