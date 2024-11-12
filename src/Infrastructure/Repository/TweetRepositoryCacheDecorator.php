@@ -45,6 +45,7 @@ class TweetRepositoryCacheDecorator implements TweetRepositoryInterface
                     static fn (Tweet $tweet): TweetModel => new TweetModel(
                         $tweet->getId(),
                         $tweet->getAuthor()->getLogin(),
+                        $tweet->getAuthor()->getId(),
                         $tweet->getText(),
                         $tweet->getCreatedAt(),
                     ),
