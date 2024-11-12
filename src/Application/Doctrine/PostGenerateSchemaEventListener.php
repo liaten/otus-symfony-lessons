@@ -16,6 +16,7 @@ class PostGenerateSchemaEventListener
      */
     public function postGenerateSchema(GenerateSchemaEventArgs $args): void
     {
+        return;
         $schema = $args->getSchema();
         if (!$schema->hasNamespace('public')) {
             $schema->createNamespace('public');

@@ -98,9 +98,9 @@ services:
 
   App\Infrastructure\Storage\MetricsStorage:
     arguments:
-      - graphite
-      - 8125
-      - my_app
+      - "graphite"
+      - "8125"
+      - "my_app"
 
   App\Domain\Repository\TweetRepositoryInterface:
     alias: App\Infrastructure\Repository\TweetRepositoryCacheDecorator
@@ -130,7 +130,7 @@ services:
     arguments:
       - '@redis_client'
       - 'my_app'
-      - 0
+      - '0'
 
   App\Infrastructure\Bus\RabbitMqBus:
     calls:
