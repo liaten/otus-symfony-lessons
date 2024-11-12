@@ -11,7 +11,6 @@ use App\Domain\Entity\User;
 use App\Domain\Model\TweetModel;
 use App\Domain\ValueObject\CommunicationChannelEnum;
 use App\Infrastructure\Repository\FeedRepository;
-use function array_slice;
 
 class FeedService
 {
@@ -20,15 +19,14 @@ class FeedService
         private readonly SubscriptionService $subscriptionService,
         private readonly PublishTweetBusInterface $publishTweetBus,
         private readonly SendNotificationBusInterface $sendNotificationBus,
-    )
-    {
+    ) {
     }
 
     public function ensureFeed(User $user, int $count): array
     {
         $feed = $this->feedRepository->ensureFeedForReader($user);
 
-        return $feed === null ? [] : array_slice($feed->getTweets(), -$count);
+        return $feed === null ? [] : \array_slice($feed->getTweets(), -$count);
     }
 
     public function spreadTweetAsync(TweetModel $tweet): void
@@ -41,13 +39,18 @@ class FeedService
         $followers = $this->subscriptionService->getFollowers($tweet->authorId);
 
         foreach ($followers as $follower) {
-            $this->feedRepository->putTweetToReaderFeed($tweet, $follower);
-            $sendNotificationDTO = new SendNotificationDTO(
-                $follower->getId(),
-                $tweet->text,
-                $follower instanceof EmailUser ? CommunicationChannelEnum::Email : CommunicationChannelEnum::Phone
-            );
-            $this->sendNotificationBus->sendNotification($sendNotificationDTO);
+            $this->materializeTweet($tweet, $follower);
         }
+    }
+
+    public function materializeTweet(TweetModel $tweet, User $follower): void
+    {
+        $this->feedRepository->putTweetToReaderFeed($tweet, $follower);
+        $sendNotificationDTO = new SendNotificationDTO(
+            $follower->getId(),
+            $tweet->text,
+            $follower instanceof EmailUser ? CommunicationChannelEnum::Email : CommunicationChannelEnum::Phone
+        );
+        $this->sendNotificationBus->sendNotification($sendNotificationDTO);
     }
 }
