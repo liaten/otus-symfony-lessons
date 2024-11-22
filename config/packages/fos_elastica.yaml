@@ -2,13 +2,21 @@
 fos_elastica:
   clients:
     default: { url: '%env(ELASTICSEARCH_URL)%' }
+  serializer: ~
   indexes:
+    tweet:
+      serializer:
+        groups: [ elastica ]
+      persistence:
+        driver: orm
+        model: App\Domain\Entity\Tweet
     user:
+      serializer:
+        groups: [ elastica ]
       persistence:
         driver: orm
         model: App\Domain\Entity\User
-      properties:
-        login: ~
-        age: ~
-        phone: ~
-        email: ~
+        listener:
+          insert: false
+          update: true
+          delete: true

@@ -22,6 +22,14 @@ class UserService
     ) {
     }
 
+    /**
+     * @return User[]
+     */
+    public function findUsersByQuery(string $query, int $perPage, int $page): array
+    {
+        return $this->userRepository->findUsersByQuery($query, $perPage, $page);
+    }
+
     public function createWithPhone(string $login, string $phone): User
     {
         $user = new PhoneUser();

@@ -21,6 +21,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Table(name: '`user`')]
 #[ORM\Entity]
@@ -59,9 +60,12 @@ class User
     #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+    #[Groups(['elastica'])]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string', length: 32, nullable: false)]
+
+    #[ORM\Column(type: 'string', length: 32, unique: true, nullable: false)]
+    #[Groups(['elastica'])]
     private string $login;
 
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
@@ -98,6 +102,7 @@ class User
     private string $password;
 
     #[ORM\Column(type: 'integer', nullable: false)]
+    #[Groups(['elastica'])]
     private int $age;
 
     #[ORM\Column(type: 'boolean', nullable: false)]
