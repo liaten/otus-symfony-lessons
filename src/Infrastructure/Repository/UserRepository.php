@@ -29,7 +29,7 @@ class UserRepository extends AbstractRepository
      */
     public function findUsersByQuery(string $query, int $perPage, int $page): array
     {
-        $paginatedResult = $this->finder->findPaginated($query);
+        $paginatedResult = $this->finder->findPaginated($query.'~2');
         $paginatedResult->setMaxPerPage($perPage);
         $paginatedResult->setCurrentPage($page);
 
