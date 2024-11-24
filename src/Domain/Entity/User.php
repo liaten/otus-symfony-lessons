@@ -134,9 +134,8 @@ class User
     }
 
     #[ORM\PrePersist]
-    public function setCreatedAt(): void
-    {
-        $this->createdAt = new DateTime();
+    public function setCreatedAt(): void {
+        $this->createdAt = DateTime::createFromFormat('U', (string)time());
     }
 
     public function getUpdatedAt(): DateTime
@@ -146,9 +145,8 @@ class User
 
     #[ORM\PrePersist]
     #[ORM\PreUpdate]
-    public function setUpdatedAt(): void
-    {
-        $this->updatedAt = new DateTime();
+    public function setUpdatedAt(): void {
+        $this->updatedAt = DateTime::createFromFormat('U', (string)time());
     }
 
     public function getDeletedAt(): ?DateTime
