@@ -1,1 +1,1 @@
-# LESSON 20 Unit тесты
+# LESSON 20 Консольные команды в Symfony
