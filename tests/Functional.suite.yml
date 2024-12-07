@@ -1,6 +1,10 @@
 actor: FunctionalTester
 modules:
   enabled:
+    - DataFactory:
+        depends: Doctrine
+        cleanup: true
+    - \Support\Helper\Factories
     - Asserts
     - Symfony:
         app_path: 'src'
