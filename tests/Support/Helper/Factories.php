@@ -25,7 +25,7 @@ class Factories extends Module
                 'age' => Facade::randomNumber(2),
                 'roles' => [],
                 'isActive' => true,
-                'phone' => '+0'.Facade::randomNumber(9, true)(),
+                'phone' => '+0' . Facade::randomNumber(9, true)(),
             ]
         );
         $factory->_define(
