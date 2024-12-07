@@ -19,7 +19,7 @@ namespace App\Tests\Support;
  * @method void pause($vars = [])
  *
  * @SuppressWarnings(PHPMD)
-*/
+ */
 class AcceptanceTester extends \Codeception\Actor
 {
     use _generated\AcceptanceTesterActions;
@@ -27,4 +27,13 @@ class AcceptanceTester extends \Codeception\Actor
     /**
      * Define custom actions here
      */
+    public function amAdmin(): void
+    {
+        $this->amHttpAuthenticated('admin', 'my_pass');
+    }
+
+    public function amUser(): void
+    {
+        $this->amHttpAuthenticated('user', 'other_pass');
+    }
 }

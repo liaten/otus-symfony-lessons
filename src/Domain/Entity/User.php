@@ -134,7 +134,8 @@ class User
     }
 
     #[ORM\PrePersist]
-    public function setCreatedAt(): void {
+    public function setCreatedAt(): void
+    {
         $this->createdAt = DateTime::createFromFormat('U', (string)time());
     }
 
@@ -145,7 +146,8 @@ class User
 
     #[ORM\PrePersist]
     #[ORM\PreUpdate]
-    public function setUpdatedAt(): void {
+    public function setUpdatedAt(): void
+    {
         $this->updatedAt = DateTime::createFromFormat('U', (string)time());
     }
 
@@ -353,5 +355,13 @@ class User
     public function setIsProtected(bool $isProtected): void
     {
         $this->isProtected = $isProtected;
+    }
+
+    /**
+     * @return Subscription[]
+     */
+    public function getSubscriptionAuthors(): array
+    {
+        return $this->subscriptionAuthors->toArray();
     }
 }
