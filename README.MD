@@ -1,1 +1,1 @@
-# LESSON 22 Интеграционное тестирование
+# LESSON 23 NelmioApiDocBundle и документация API 
